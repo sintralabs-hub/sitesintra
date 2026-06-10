@@ -1341,6 +1341,31 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.12 });
 document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
+// Counter animation
+function animateCounter(el) {
+  const target = +el.getAttribute('data-target');
+  const duration = 1500;
+  const start = performance.now();
+  function update(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.floor(ease * target);
+    if (progress < 1) requestAnimationFrame(update);
+    else el.textContent = target;
+  }
+  requestAnimationFrame(update);
+}
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.counter').forEach(animateCounter);
+      counterObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+const statsGrid = document.querySelector('.stats-grid');
+if (statsGrid) counterObserver.observe(statsGrid);
+
 // FAQ accordion
 document.querySelectorAll('.faq-q').forEach(btn => {
   btn.addEventListener('click', () => {
